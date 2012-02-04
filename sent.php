@@ -1,7 +1,7 @@
-<!DOCTYPE html>
-<html>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
 <head>
-	<meta charset="utf-8">
 	<title>MyLovedPlaylists</title>
 	<link href="default.css" rel="stylesheet" type="text/css" media ="screen" />
 </head>
@@ -89,15 +89,15 @@ foreach ($items as $itemObj){
 		if (!($notExist)){
 			$notExist="<br /> <p /><strong>We could not find any match for the following:</strong>";
 		}
-		$notExist.=("<br><p>".$itemObj->trackName."<strong> By</strong> $itemObj->artistName");
+		$notExist.=("<br /><p />".htmlspecialchars($itemObj->trackName)."<strong> By </strong>".htmlspecialchars($itemObj->artistName));
 	}
 	else if(!($bestScore==($lenBestTrack+2*($lenBestArtist))&&$bestScore==(count($lastFmTrackNameArr))+2*(count($lastFmArtistNameArr)))&&$itemObj->trackName!=""){
 		if(!$partialMatches){
 			$partialMatches="<br /> <p /><strong>The following tracks didn't match perfectly, but we've guessed what they were supposed to be. These are usually caused by misspellings, slightly different track names, or double spaces. You may wish to check if some of these are correct: </strong>";
 		}
-		$partialMatches.="<br><p><strong>Track</strong>: ".$itemObj->trackName." <strong> By: </strong>".$itemObj->artistName."<br><strong>Matched with:</strong>";
-		$partialMatches.=$bestTrack;
-		$partialMatches.=" <strong>By:</strong> ".$bestArtist;
+		$partialMatches.="<br /><p /><strong>Track</strong>: ".htmlspecialchars($itemObj->trackName)." <strong> By: </strong>".htmlspecialchars($itemObj->artistName)."<br /><strong>Matched with:</strong>";
+		$partialMatches.=htmlspecialchars($bestTrack);
+		$partialMatches.=" <strong>By:</strong> ".htmlspecialchars($bestArtist);
 	}
 
 	$obj=$processedXML[$bestIndex];
