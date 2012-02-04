@@ -1,0 +1,45 @@
+body{
+	background: #000000 url(./bg.gif);
+	font-family:Geneva, sans-serif;
+	min-height:100%;
+}
+
+#wrapper{
+	width:1024px;
+	height:100%;
+	margin-left:auto;
+	margin-right:auto;
+}
+
+#content{
+	width:50%;
+	margin-top:10%;
+	padding-top:2%;
+	padding-left:2%;
+	padding-right:2%;
+	padding-bottom:2%;
+	background:#C9C9C9;
+	margin-left:auto;
+	margin-right:auto;
+	border-style:solid;
+}
+
+#footer{
+	padding-top:5%;
+	padding-bottom:0px;
+	margin-bottom:0px;
+	text-align:center;
+}
+
+h2{
+	display:inline;
+}
+h1{
+	text-align:center;
+}
+
+input{
+	margin-left:2%;
+	display:inline;
+	background-color:#E8E8E8;
+}
