@@ -63,8 +63,6 @@ function parseXML(text){
 			str+=tracks[i];
 			str2+=artists[i]
 		}
-
-		//TODO: Make a decent delimiter - hash?
 		else{
 			str+=tracks[i]+"DELIMITER,";
 			str2+=artists[i]+"DELIMITER,";
