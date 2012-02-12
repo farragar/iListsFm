@@ -10,11 +10,11 @@
 
 <?php 
 
+$extArr=explode(".", $_FILES['library']['name']);
 //Check file upload & type before running matching script
-if($_FILES['library']['error']{
+if($_FILES['library']['error']){
   echo "Invalid file upload!";
 }
-$extArr=explode(".", $_FILES['library']['name']);
 else if(($extArr[1])!="xml"){
   echo "Invalid file type uploaded!";
 }
