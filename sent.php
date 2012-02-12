@@ -24,29 +24,32 @@ else getLovedTracks();
 function getLovedTracks(){ 
   $val=$_POST['tracksIn'];
   $val2=$_POST['artistsIn'];
-
   $isMac=$_POST['OS'];
+  $str="";
 
+  //Normalise lowercase and tokenise
   $val=strtolower($val);
   $val2=strtolower($val2);
-
   $tracks=preg_split("/delimiter,/", $val);
   $artists=preg_split("/delimiter,/", $val2);
 
+  //cast to array
   $items=array();
   for ($i=0; $i<count($tracks); $i++){
     $items[]= (object) array('trackName'=>$tracks[$i], 'artistName'=>$artists[$i]);
   }
 
   $loc=$_FILES['library']['tmp_name'];
-  $str="";
   $input = simplexml_load_file($loc);
+
+  //Reduce xml to just names, artists and locations.
   $processedXML=preprocessXML($input);
 
   $uid=uniqid();
   $fh=fopen("./playlists/".$uid.".m3u", 'w');
 
   $notExist="";
+
   //For each loved track
   foreach ($items as $itemObj){
     $bestScore=0;
@@ -56,14 +59,17 @@ function getLovedTracks(){
     $bestIndex=0;
     $arrIndex=0;
 
+    //tokenise tracks, artists to bag of words
     $lastFmTrackNameArr=preg_split("/ /",$itemObj->trackName);
     $lastFmArtistNameArr=preg_split("/ /",$itemObj->artistName);
 
-
+    //For each itunes track
     foreach($processedXML as $obj){
       $thisScore=0;
       $trackNameArr=preg_split("/ /",$obj->trackName);
       $artistNameArr=preg_split("/ /",$obj->artistName);
+
+      //Score 1 for matching name tokens, 2 for matching artist tokens
       foreach($lastFmTrackNameArr as $token){
         if(in_array($token, $trackNameArr)){
           $thisScore++;
@@ -77,16 +83,17 @@ function getLovedTracks(){
       }
 
       if($thisScore>$bestScore){
-        $bestScore=$thisScore;
         $bestTrack=$obj->trackName;
+        $bestArtist=$obj->artistName;
+        $bestScore=$thisScore;
         $bestIndex=$arrIndex;
         $lenBestTrack=count($trackNameArr);
-        $bestArtist=$obj->artistName;
         $lenBestArtist=count($artistNameArr);
       }
       $arrIndex++;
     }
 
+    //Variance between recorded and max scores == partial match
     if($bestTrack==""&&$itemObj->trackName!=""){
       if (!($notExist)){
         $notExist="<br /> <p /><strong>We could not find any match for the following:</strong>";
@@ -102,6 +109,7 @@ function getLovedTracks(){
       $partialMatches.=" <strong>By:</strong> ".htmlspecialchars($bestArtist);
     }
 
+    //Write location of this best track to playlist; continue
     $obj=$processedXML[$bestIndex];
     $str=$obj->location."\r\n";  
     fwrite($fh,$str);
@@ -115,6 +123,7 @@ function getLovedTracks(){
 }
 
 function preprocessXML($file){
+//Strips all xml tags != name, artist or location from an itunes library to ease processing
 
   $trackArr=array();
   $trackLib=$file->dict[0]->dict[0];
