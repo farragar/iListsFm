@@ -1,0 +1,13 @@
+MyLovedPlaylists - a weekend coding project.
+
+Generates a .m3u playlist of last.fm users' 'Loved' tracks. 
+Parses an itunes library xml file to get file locations on the local machine.
+
+Includes weighted algorithm to compare whitespace-delimited words in track/artist names, to find the most appropriate file.
+--This deals with last.fm's auomatic id3tag fixing/track renaming
+
+TODO:Some better error checking, particuarly on XML input,
+     Jscript XML parser? Currently using messy regex splitting
+     
+MAJOR REWRITE: Turn PHP->JScript; can we get this thing running locally?
+
