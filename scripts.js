@@ -1,95 +1,278 @@
-function getLovedTracks(username) {
-  var user=username;
-  var text="";
-  var out="";
-  var req = new XMLHttpRequest();
+﻿//TODO FOR EACH
+//make function for DOM parser
 
-  /*limit to 400 tracks to ease computation*/
-  req.open("GET", "http://ws.audioscrobbler.com/2.0/?method=user.getlovedtracks&user="+user+"&api_key=d7113c54fb740ab1e97398776926fdc4&limit=300");
-
-  req.onreadystatechange = function() {
-
-       if (req.readyState == 4) {
-          if (req.status == 200) {
-            text=req.responseText;  
-            parseXML(text);
-          }
-       }
-    
-  };
-
-  req.send();
+function runForm(callback){
+  switch(document.inputForm.selectType.value){
+    case 'loved':
+      getLastFmLoved(getJSLovedTracks);
+      break;
+    case 'top':
+      getAndAppendTop([]);
+      break;
+    case 'lovedAndTop':
+      getLastFmLoved(getAndAppendTop);
+      break;
+  }
 }
 
-//TODO: Rewrite this. Use a real XML parser instead of this sketchy regex/substr hack.
-function parseXML(text){
+function getLastFmLoved(callback){
+  var username=document.inputForm.username.value;
+  var req=$.get("http://ws.audioscrobbler.com/2.0/?method=user.getlovedtracks&user="+username+"&api_key=d7113c54fb740ab1e97398776926fdc4&limit=400", function(data){
+    var objs=parseAPIResponseXML(data);
+    callback(objs);
+  });
+}
 
-  var artists=new Array();
-  var tracks=new Array();
+function getAndAppendTop(inputArr){
+ var username=document.inputForm.username.value;
+  var limit=document.inputForm.numOfTop.value;
+  var req=$.get("http://ws.audioscrobbler.com/2.0/?method=user.gettoptracks&user="+username+"&api_key=d7113c54fb740ab1e97398776926fdc4&limit="+limit, function(data){
+    var objs=parseAPIResponseXML(data);
+    postProcess(objs, inputArr);
+  });
+}
 
-  var splitted=text.split(/\r\n|\r|\n/);
-  var pattern = new RegExp(/<name>.*<\/name>/);
+function postProcess(topTracks, lovedTracks){
+  var topLarger=topTracks>lovedTracks;
+  var newArr=lovedTracks;
+
+  for (var i in topTracks){
+    if(($.inArray(topTracks[i], lovedTracks))==-1){
+      newArr.push(topTracks[i]);
+    }
+  }
+
+  console.log(newArr);
+  getJSLovedTracks(newArr);
+}
+
+
+function parseAPIResponseXML(doc){
+
+  var items=new Array();
 
   var artist=false;
-  var counter=0
+  var counter=0;
 
-  for(var i=0; i<splitted.length; i++){
-    if(splitted[i].match(pattern)){
-      if(artist==true){
-        var pos=splitted[i].indexOf(">")+1;
-        var pos2=splitted[i].indexOf("</name>");
-        var name=splitted[i].substring(pos, pos2);
-        artists[counter]=name;
-        artist=false;
-        counter++;
+  tracks=doc.getElementsByTagName("track");
+
+  for (i=0; i<tracks.length; i++){
+    thisItem={};
+    names=tracks[i].getElementsByTagName("name");
+    thisItem.trackName=names[0].childNodes[0].nodeValue;
+    thisItem.artistName=names[1].childNodes[0].nodeValue;
+    items[i]=thisItem;
+  }
+
+  return items;
+
+
+}
+
+function parseUserLibrary(libraryXML){
+  if(window.DOMParser){
+    parser=new DOMParser();
+    xml=parser.parseFromString(libraryXML,"text/xml");
+  }
+  else{
+    xml=new ActiveXObject("Microsoft.XMLDOM");
+    xml.async=false;
+    xml.loadXML(libraryXML);
+  }
+  if(!xml){
+      document.getElementById("dropZone").setAttribute("class", "error");
+      document.getElementById("dropZone").innerHTML="Fail! Couldn't parse your library! (╯°□°）╯︵ ┻━┻";
+      return;
+  }
+
+  lib=xml.getElementsByTagName("dict")[1];
+
+  if(!lib){
+      document.getElementById("dropZone").setAttribute("class", "error");
+      document.getElementById("dropZone").innerHTML="Fail! Couldn't parse your library! (╯°□°）╯︵ ┻━┻";
+      return;
+  }
+  lib=(lib.getElementsByTagName("dict"));
+
+  numTracks=(lib.length);
+  var trackObjArr=[];
+
+  //For each track
+  for(i=0;i<numTracks;i++){
+    thisTrack=lib[i];
+    thisTrackObj={};
+    thisTrackObj.id=i;
+
+    //For each xml item
+    for (j=0;j<thisTrack.childNodes.length; j++){
+      if(thisTrack.childNodes[j].nodeName=='key'){
+          item=thisTrack.childNodes[j].childNodes[0].nodeValue;
+          switch(item){
+            case 'Name':
+                 thisTrackObj.trackName=thisTrack.childNodes[j+1].childNodes[0].nodeValue;
+                 break;
+            case 'Artist':
+                 thisTrackObj.artistName=thisTrack.childNodes[j+1].childNodes[0].nodeValue;
+                 break;
+            case 'Location':
+              if (navigator.appVersion.indexOf("Mac")==-1){
+                 thisTrackObj.fileLocation=thisTrack.childNodes[j+1].childNodes[0].nodeValue;
+              }
+              else{
+                 thisTrackObj.fileLocation=thisTrack.childNodes[j+1].childNodes[0].nodeValue.substr(16);
+              }
+                 break;
+            default:
+                 break;
+          }
       }
-      else if(artist==false){ 
-        var pos=splitted[i].indexOf(">")+1;
-        var pos2=splitted[i].indexOf("</name>");
-        var name=splitted[i].substring(pos, pos2);
-        tracks[counter]=name;
-        artist=true;
-      }
     }
-  }
-
-  var tracksStr="";
-  var artistsStr="";
-
-  for(var i=0; i<tracks.length; i++){
-
-    //Don't append delimiter to final elem
-    if(i==tracks.length){
-      tracksStr+=tracks[i];
-      artistsStr+=artists[i]
+    if(!(thisTrackObj.artistName)){
+      thisTrackObj.artistName="unknown";
     }
-
-    //TODO: Make a decent delimiter - hash?
-    else{
-      tracksStr+=tracks[i]+"DELIMITER,";
-      artistsStr+=artists[i]+"DELIMITER,";
+    else if(!(thisTrackObj.trackName)){
+      thisTrackObj.trackName="unknown";
     }
+    //tracks can't not have a location.
+    
+    trackObjArr[i]=thisTrackObj;
   }
+trackObjStr=JSON.stringify(trackObjArr);
 
-  //Check if mac for file location processing
-  var isMac=false;
-  if (navigator.appVersion.indexOf("Mac")!=-1){
-    isMac=true;
+document.inputForm.trackObjStr.value=trackObjStr;
+document.getElementById("submitBtn").removeAttribute("disabled");
+document.getElementById("dropZone").setAttribute("class", "okay");
+document.getElementById("dropZone").innerHTML="...File looks legit, good to go!";
+}
+
+function handleThreshChange(){
+  if(document.inputForm.matchThreshold.value==("default")){
+    document.inputForm.matchThreshold.className="nullSelect";
   }
+  else{
+    document.inputForm.matchThreshold.className=("legitSelect");
+    }
+}
+
+function handleSelectChange(){
+  if(document.inputForm.selectType.value==("loved")){
+    document.inputForm.removeChild(document.inputForm.numOfTop);
+    delete document.inputForm.numOfTop;
+  }
+  else if(document.inputForm.selectType.value!=("loved")&&(!document.inputForm.numOfTop)){
+    var input=document.createElement("input");
+    input.id="numOfTop";
+    input.type="number";
+    input.placeholder="Use top ... tracks";
+    document.inputForm.insertBefore(input, document.inputForm.matchThreshold);
+  }
+}
   
-  //Build form
-  document.getElementById("content").innerHTML="<h2>Sucess!</h2><br />  Next, upload your itunes library .xml file, this is used to find the file locations for your playlist. It's usually located in 'C:\\Users\\YourUsernameHere\\Music\\iTunes' on Windows, or 'localhost/Users/YourUsernameHere/Music/iTunes' on Mac. No libraries are stored. <br /><p />Please note; if your file is large, you have many loved tracks, or a low upload speed, this may take some time. To reduce time, maximum file size is currently retracksicted to 20MB, and a maximum of 300 loved tracks will be used.";
+ function handleDragOver(evt) {
+              evt.stopPropagation();
+              evt.preventDefault();
+              evt.dataTransfer.dropEffect = 'copy'; 
+          }
 
-  document.getElementById("content").innerHTML+="<form name=\"submittion\" action=\"processTracks.php\" id=\"submitForm\" method=\"post\" enctype=\"multipart/form-data\">";
-  document.getElementById("submitForm").innerHTML+="<input type=\"file\" name=\"library\"></input>";
-  document.getElementById("submitForm").innerHTML+="<input type=\"hidden\" name=\"tracksIn\"></input>";
-  document.getElementById("submitForm").innerHTML+="<input type=\"hidden\" name=\"artistsIn\"></input>";
-  document.getElementById("submitForm").innerHTML+="<input type=\"hidden\" name=\"OS\"></input>";
-  document.getElementById("submitForm").innerHTML+="<input type=\"submit\" value=\"Lets go!\"></input>";
+  function handleFileSelect(evt) {
+    evt.stopPropagation();
+    evt.preventDefault();
 
-  document.getElementById("submitForm").tracksIn.value=tracksStr;
+    var file = evt.dataTransfer.files[0]; 
 
-  alert(document.getElementById("submitForm").tracksIn.value);
-  document.getElementById("submitForm").artistsIn.value=artistsStr;
-  document.getElementById("submitForm").submitForm.OS.value=isMac;
+    if(file.type !='text/xml'){
+      document.getElementById("dropZone").setAttribute("class", "error");
+      document.getElementById("dropZone").innerHTML="Fail! Wrong file type! (╯°□°）╯︵ ┻━┻";
+    }
+    else{
+      var reader = new FileReader();
+      reader.readAsText(file);
+
+      reader.onerror=function(){
+      document.getElementById("dropZone").setAttribute("class", "error");
+      document.getElementById("dropZone").innerHTML="Invalid file type";
+    }
+
+      reader.onloadend=function(){
+      var inputText=reader.result;
+      parseUserLibrary(inputText);
+    }
+    }
+  }
+
+function getThresholdMultiplier(){
+  switch(document.inputForm.matchThreshold.value){
+    case 'perfect':
+      return 1;
+      break;
+    case 'strong':
+      return 0.8;
+      break;
+    case 'intermediate':
+      return 0.6;
+      break;
+    case 'weak':
+      return 0.35;
+      break;
+    case 'anything':
+      return 0;
+  }
+}
+
+
+function getJSLovedTracks(lovedItems){
+
+  var tracksStr=document.inputForm.trackObjStr.value;
+  var tracksObjArr=eval(tracksStr);
+  var perfectMatch=[];
+  var semiMatch=[]
+  var noMatch=[];
+   
+  for(var i in lovedItems){
+    var maxScore=0;
+    var bestTrack;
+    lovedArtistTokens=lovedItems[i].artistName.toLowerCase().split(" ");
+    lovedTrackTokens=lovedItems[i].trackName.toLowerCase().split(" ");
+    var perfectScore=lovedArtistTokens.length+(1.5*(lovedTrackTokens.length));
+
+    for (var j in tracksObjArr){
+      var score=0;
+      currentTrack=tracksObjArr[j];
+      artistTokens=currentTrack.artistName.toLowerCase().split(" ");
+      trackTokens=currentTrack.trackName.toLowerCase().split(" ");
+      for(var k in lovedArtistTokens){
+        if(($.inArray(lovedArtistTokens[k], artistTokens))!=-1){
+          score+=1;
+        }
+      }
+      for(var k in lovedTrackTokens){
+        if(($.inArray(lovedTrackTokens[k], trackTokens))!=-1){
+          score+=1.5;
+        }
+      }
+      if(score>maxScore){
+        bestTrack=currentTrack;
+        maxScore=score;
+      }
+    }
+
+    targetScore=perfectScore*getThresholdMultiplier();
+    
+
+    if(maxScore==perfectScore){
+      perfectMatch.push([lovedItems[i],bestTrack]);
+    }
+    else if(maxScore>=targetScore){
+      semiMatch.push([lovedItems[i],bestTrack]);
+    }
+    else{
+      noMatch.push(lovedItems[i]);
+    }
+    
+
+  }
+  document.inputForm.perfectMatches.value=JSON.stringify(perfectMatch);
+  document.inputForm.semiMatches.value=JSON.stringify(semiMatch);
+  document.inputForm.failedMatches.value=JSON.stringify(noMatch);
+  document.inputForm.submit();
 }

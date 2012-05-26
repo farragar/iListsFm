@@ -12,19 +12,13 @@ body{
 }
 
 #content{
-	width:100%;
+	width:50%;
 	margin-top:10%;
 	padding:2% 2%;
 	background:#C9C9C9;
 	margin-left:auto;
 	margin-right:auto;
 	border-style:solid;
-}
-
-#content li{
-  margin-right:2%
-  display:inline;
-  list-style:none;
 }
 
 h2{
