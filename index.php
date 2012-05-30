@@ -19,7 +19,7 @@
     </style>
     <link href="./assets/css/bootstrap-responsive.css" rel="stylesheet">
 
-    <link rel="shortcut icon" href="./favicon.ico">
+    <link rel="shortcut icon" href="./images/favicon.ico">
   </head>
 
   <body>
@@ -45,17 +45,19 @@
       </div>
     </div>
 
-    <div class="container-fluid">
+
+    <div class="container">
+      <div class="hero-unit">
+      <h1>MyLovedPlaylists</h1>
       <div class="row-fluid">
-        <div class="span3">
-          <!--sidebar-->
-          <h1>Title</h1>
-          <p>The following tool will generate an m3u playlist (compatible with all main media players) based on Last.FM data and iTunes library information. Your iTunes library file can be found in 'C:\Users\username\Music\iTunes\iTunes Music Library.xml' on Windows, and '/Users/username/Music/iTunes/iTunes Library.xml' on Mac.</p>
-          <p>The following tool will generate an m3u playlist (compatible with all main media players) based on Last.FM data and iTunes library information. Your iTunes library file can be found in 'C:\Users\username\Music\iTunes\iTunes Music Library.xml' on Windows, and '/Users/username/Music/iTunes/iTunes Library.xml' on Mac.</p>
-          <p>The following tool will generate an m3u playlist (compatible with all main media players) based on Last.FM data and iTunes library information. Your iTunes library file can be found in 'C:\Users\username\Music\iTunes\iTunes Music Library.xml' on Windows, and '/Users/username/Music/iTunes/iTunes Library.xml' on Mac.</p>
-          <p>The following tool will generate an m3u playlist (compatible with all main media players) based on Last.FM data and iTunes library information. Your iTunes library file can be found in 'C:\Users\username\Music\iTunes\iTunes Music Library.xml' on Windows, and '/Users/username/Music/iTunes/iTunes Library.xml' on Mac.</p>
-          </div>
-          <div class="span9">
+        <div class="span12">
+<h2>Usage</h2>
+          <p>The following tool will generate an m3u playlist (compatible with all main media players) based on Last.FM data and iTunes library information. For instructions on importing your file, see <a href="#">here</a>. For the gory technical details, see <a href="#">here</a>.
+          <p>To find file names and locations you must provide an iTunes music library xml file, found at 'C:\Users\username\Music\iTunes\iTunes Music Library.xml' on Windows, and '/Users/username/Music/iTunes/iTunes Library.xml' on Mac.
+          <p>The matching threshold allows you to control how strict the system is. A very strong threshold will reduce the number of incorrect matches (false positives), but may also ignore correct matches (false negatives); visa versa for weak thresholds. The intermediate setting is recommended unless your library contains a large quantity of poorly tagged music (often pirated, or badly imported). In this case, a slightly weaker threshold may be necessary.
+</div>
+    <div class="row-fluid">
+      <div class="span12">
             <output id="list"></output>
             <div id="dropZone"> Drop library file here </div>
               <script>
@@ -88,11 +90,12 @@
 <input type="hidden" id="semiMatches" name="semiMatches" />
 <input type="hidden" id="failedMatches" name="failedMatches" />
 </form>
+</div>
       </div>
 </div>
 
       <footer>
-        <p>&copy; farragar.com 2012</p>
+        <p>&copy; farragar.com 2012 <a rel="license" href="http://creativecommons.org/licenses/by-sa/3.0/"><img alt="Creative Commons License" style="border-width:0" src="http://i.creativecommons.org/l/by-sa/3.0/88x31.png" /></a><br />This <span xmlns:dct="http://purl.org/dc/terms/" href="http://purl.org/dc/dcmitype/InteractiveResource" rel="dct:type">work</span> is licensed under a <a rel="license" href="http://creativecommons.org/licenses/by-sa/3.0/">Creative Commons Attribution-ShareAlike 3.0 Unported License</a>.</p>
       </footer>
 
     </div> <!-- /container -->

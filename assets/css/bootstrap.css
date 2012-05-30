@@ -355,6 +355,7 @@ a:hover {
 }
 
 .row-fluid .span6 {
+
   width: 48.93617020799999%;
   *width: 48.88297871863829%;
 }
@@ -372,6 +373,7 @@ a:hover {
 .row-fluid .span3 {
   width: 23.404255317%;
   *width: 23.3510638276383%;
+
 }
 
 .row-fluid .span2 {
@@ -401,6 +403,7 @@ a:hover {
 }
 
 .container-fluid {
+
   padding-right: 20px;
   padding-left: 20px;
   *zoom: 1;
@@ -4917,6 +4920,7 @@ a.badge:hover {
 
 .hero-unit {
   padding: 60px;
+  padding-top: 30px;
   margin-bottom: 30px;
   background-color: #eeeeee;
   -webkit-border-radius: 6px;
@@ -4925,6 +4929,8 @@ a.badge:hover {
 }
 
 .hero-unit h1 {
+  text-align:center;
+  padding-bottom:50px;
   margin-bottom: 0;
   font-size: 60px;
   line-height: 1;
