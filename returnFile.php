@@ -45,67 +45,76 @@
       </div>
     </div>
 
-    <div class="container">
-
-      <!-- Main hero unit for a primary marketing message or call to action -->
       <div class="hero-unit">
-        <h2>Perfectly Matched:</h2><p />
-        <table class="table-striped">
-          <thead>
-            <th>Last.FM Track</th>
-            <th>Last.FM Artist</th>
-          </thead>
-          <?php 
-            $playlist="";
-            $perfectMatches=json_decode($_POST['perfectMatches']);
-            $semiMatches=json_decode($_POST['semiMatches']);
-            $failedTracks=json_decode($_POST['failedMatches']);
+    <div class="container">
+    <?php 
+        $uid=uniqid();
+        echo '<a href="./playlists/'.$uid.'.m3u"><h2>Download Playlist</h2></a>';
+        $playlist="";
+        $perfectMatches=json_decode($_POST['perfectMatches']);
+        $semiMatches=json_decode($_POST['semiMatches']);
+        $failedTracks=json_decode($_POST['failedMatches']);
+        
+        if($semiMatches){
+          echo '<h2>Partially Matched:</h2><p />
+            <table class="table table-striped table-bordered table-condensed">
+            <thead>
+              <th>Last.FM Track</th>
+              <th>Last.FM Artist</th>
+              <th>Match Track</th>
+              <th>Match Artist</th>
+            </thead>';
+         
+          
+          foreach($semiMatches as $loveTrackPair){
+            echo '<tr><td>'.$loveTrackPair[0]->trackName.'</td>'.
+              '<td>'.$loveTrackPair[0]->artistName.'</td>'.
+              '<td>'.$loveTrackPair[1]->trackName.'</td>'.
+              '<td>'.$loveTrackPair[1]->artistName.'</td></tr>';
 
-            foreach($perfectMatches as $loveTrackPair){
-              echo '<tr><td>'.$loveTrackPair[0]->trackName.'</td>'.
-                '<td>'.$loveTrackPair[0]->artistName.'</td></tr>';
-              $playlist=$playlist.$loveTrackPair[1]->fileLocation;
-            }
-          ?>
-
-      </table>
-      <h2>Partially Matched:</h2><p />
-        <table class="table-striped">
+            $playlist=$playlist.$loveTrackPair[1]->fileLocation."\r\n";
+          }
+        }
+        echo '</table>';
+        
+        if($failedTracks){
+        echo '<h2> Failed:</h2><p />
+        <table class="table table-striped table-bordered table-condensed">
           <thead>
             <th>Last.FM Track</th>
             <th>Last.FM Artist</th>
-            <th>Match Track</th>
-            <th>Match Artist</th>
-          </thead>
-          <?php 
-            foreach($semiMatches as $loveTrackPair){
-              echo '<tr><td>'.$loveTrackPair[0]->trackName.'</td>'.
-                '<td>'.$loveTrackPair[0]->artistName.'</td>'.
-                '<td>'.$loveTrackPair[1]->trackName.'</td>'.
-                '<td>'.$loveTrackPair[1]->artistName.'</td></tr>';
-            }
-          ?>
-       </table>
-<h2> Failed tracks:</h2><p />
-        <table class="table-striped">
-          <thead>
-            <th>Last.FM Track</th>
-            <th>Last.FM Artist</th>
-</thead>
-          <?php 
+            </thead>';
             foreach($failedTracks as $track){
               echo '<tr><td>'.$track->trackName.'</td>'.
               '<td>'.$track->artistName.'</td></tr>';
             }
-          ?>
-</table>
+        }
+        echo '</table>';
+
+        if($perfectMatches){ 
+          echo'
+            <h2>Perfectly Matched:</h2><p />
+            <table class="table table-striped table-bordered table-condensed">
+            <thead>
+              <th>Last.FM Track</th>
+              <th>Last.FM Artist</th>
+            </thead>';
+          
+          foreach($perfectMatches as $loveTrackPair){
+            echo '<tr><td>'.$loveTrackPair[0]->trackName.'</td>'.
+              '<td>'.$loveTrackPair[0]->artistName.'</td></tr>';
+            
+            $playlist=$playlist.$loveTrackPair[1]->fileLocation."\r\n";
+          }
+        }
+        $fh=fopen("./playlists/".$uid.".m3u", 'w');
+        fwrite($fh,$playlist);
+        fclose($fh);
+      ?>
+      </table>
       <footer>
         <p>&copy; farragar.com 2012</p>
       </footer>
-
     </div> <!-- /container -->
-
   </body>
 </html>
-
-

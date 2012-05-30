@@ -1,5 +1,5 @@
 ﻿//TODO FOR EACH
-//make function for DOM parser
+var validLibFile=false;
 
 function runForm(callback){
   switch(document.inputForm.selectType.value){
@@ -13,6 +13,29 @@ function runForm(callback){
       getLastFmLoved(getAndAppendTop);
       break;
   }
+}
+
+function checkActivateSubmit(){
+  if(validLibFile &&
+      document.inputForm.username.value &&
+      document.inputForm.matchThreshold.value!='default' && 
+      validTopTracks()){
+        $(document.getElementById("submitBtn")).attr("disabled", false);
+  }
+  else {
+    $(document.getElementById("submitBtn")).attr("disabled", true);
+  }
+}
+
+
+function validTopTracks(){
+  type=document.inputForm.selectType.value;
+  if(type=='top' || type=='lovedAndTop'){
+    if(!document.inputForm.numOfTop.value){
+      return false
+    }
+  }
+  return true
 }
 
 function getLastFmLoved(callback){
@@ -48,12 +71,9 @@ function postProcess(topTracks, lovedTracks){
 
 
 function parseAPIResponseXML(doc){
-
   var items=new Array();
-
   var artist=false;
   var counter=0;
-
   tracks=doc.getElementsByTagName("track");
 
   for (i=0; i<tracks.length; i++){
@@ -65,8 +85,6 @@ function parseAPIResponseXML(doc){
   }
 
   return items;
-
-
 }
 
 function parseUserLibrary(libraryXML){
@@ -139,8 +157,10 @@ function parseUserLibrary(libraryXML){
   }
 trackObjStr=JSON.stringify(trackObjArr);
 
+validLibFile=true;
+checkActivateSubmit();
+
 document.inputForm.trackObjStr.value=trackObjStr;
-document.getElementById("submitBtn").removeAttribute("disabled");
 document.getElementById("dropZone").setAttribute("class", "okay");
 document.getElementById("dropZone").innerHTML="...File looks legit, good to go!";
 }
@@ -164,15 +184,18 @@ function handleSelectChange(){
     input.id="numOfTop";
     input.type="number";
     input.placeholder="Use top ... tracks";
+    input.onchange=function(){
+      checkActivateSubmit();
+    };
     document.inputForm.insertBefore(input, document.inputForm.matchThreshold);
   }
 }
   
- function handleDragOver(evt) {
-              evt.stopPropagation();
-              evt.preventDefault();
-              evt.dataTransfer.dropEffect = 'copy'; 
-          }
+  function handleDragOver(evt) {
+    evt.stopPropagation();
+    evt.preventDefault();
+    evt.dataTransfer.dropEffect = 'copy'; 
+  }
 
   function handleFileSelect(evt) {
     evt.stopPropagation();
@@ -189,14 +212,14 @@ function handleSelectChange(){
       reader.readAsText(file);
 
       reader.onerror=function(){
-      document.getElementById("dropZone").setAttribute("class", "error");
-      document.getElementById("dropZone").innerHTML="Invalid file type";
+        document.getElementById("dropZone").setAttribute("class", "error");
+        document.getElementById("dropZone").innerHTML="Fail! Read Error! (╯°□°）╯︵ ┻━┻";
     }
 
       reader.onloadend=function(){
-      var inputText=reader.result;
-      parseUserLibrary(inputText);
-    }
+        var inputText=reader.result;
+        parseUserLibrary(inputText);
+      }
     }
   }
 

@@ -45,34 +45,36 @@
       </div>
     </div>
 
-    <div class="container">
-
-      <!-- Main hero unit for a primary marketing message or call to action -->
-      <div class="hero-unit">
-        <h1>MyLovedPlaylists</h1>
-        <p>The following tool will generate an m3u playlist (compatible with all main media players) based on Last.FM data and iTunes library information. Your iTunes library file can be found in 'C:\Users\username\Music\iTunes\iTunes Music Library.xml' on Windows, and '/Users/username/Music/iTunes/iTunes Library.xml' on Mac.</p>
-
-          <output id="list"></output>
-          <div id="dropZone"> Drop library file here </div>
-          <script>
-          
-          // Setup the dnd listeners.
-          var dropZone = document.getElementById('dropZone');
-          dropZone.addEventListener('dragover', handleDragOver, false);
-          dropZone.addEventListener('drop', handleFileSelect, false);
-  
-          </script>            
-
-
+    <div class="container-fluid">
+      <div class="row-fluid">
+        <div class="span3">
+          <!--sidebar-->
+          <h1>Title</h1>
+          <p>The following tool will generate an m3u playlist (compatible with all main media players) based on Last.FM data and iTunes library information. Your iTunes library file can be found in 'C:\Users\username\Music\iTunes\iTunes Music Library.xml' on Windows, and '/Users/username/Music/iTunes/iTunes Library.xml' on Mac.</p>
+          <p>The following tool will generate an m3u playlist (compatible with all main media players) based on Last.FM data and iTunes library information. Your iTunes library file can be found in 'C:\Users\username\Music\iTunes\iTunes Music Library.xml' on Windows, and '/Users/username/Music/iTunes/iTunes Library.xml' on Mac.</p>
+          <p>The following tool will generate an m3u playlist (compatible with all main media players) based on Last.FM data and iTunes library information. Your iTunes library file can be found in 'C:\Users\username\Music\iTunes\iTunes Music Library.xml' on Windows, and '/Users/username/Music/iTunes/iTunes Library.xml' on Mac.</p>
+          <p>The following tool will generate an m3u playlist (compatible with all main media players) based on Last.FM data and iTunes library information. Your iTunes library file can be found in 'C:\Users\username\Music\iTunes\iTunes Music Library.xml' on Windows, and '/Users/username/Music/iTunes/iTunes Library.xml' on Mac.</p>
+          </div>
+          <div class="span9">
+            <output id="list"></output>
+            <div id="dropZone"> Drop library file here </div>
+              <script>
+                // Setup the dnd listeners.
+                var dropZone = document.getElementById('dropZone');
+                dropZone.addEventListener('dragover', handleDragOver, false);
+                dropZone.addEventListener('drop', handleFileSelect, false);
+              </script>            
       <form class="well form-inline" id="inputForm" name="inputForm" onsubmit="runForm(getJSLovedTracks); return false;" action="returnFile.php" method="post">
-        <input type="text" id="username" name="username" placeholder="Last.FM Username"/>
-        <select id="selectType" onChange="handleSelectChange();">
+        <input type="text" id="username" name="username" placeholder="Last.FM Username" onChange="checkActivateSubmit();" />
+        <select id="selectType" onChange="handleSelectChange(); checkActivateSubmit();">
           <option value="lovedAndTop">Loved and top tracks</option>
           <option value="loved">Loved tracks only</option>
           <option value="top">Top tracks only</option>
         </select>
-      <input id="numOfTop" type="number" placeholder="Use top ... tracks" />
-      <select id="matchThreshold" onchange="handleThreshChange();" class="nullSelect">
+        <script>
+          handleSelectChange();
+        </script>
+      <select id="matchThreshold" onchange="handleThreshChange(); checkActivateSubmit();" class="nullSelect">
         <option value="default" >Matching Threshold</option>
         <option value="perfect">Perfect</option>
         <option value="strong">Strong</option>
@@ -80,14 +82,14 @@
         <option value="weak">Weak</option>
         <option value="anything">Anything goes!</option>
       </select>
-</select>
       <button id="submitBtn" class="btn btn-primary" type="submit" disabled>Submit</button>
 <input type="hidden" id="trackObjStr" name="trackObjstr" />
 <input type="hidden" id="perfectMatches" name="perfectMatches" />
 <input type="hidden" id="semiMatches" name="semiMatches" />
-<input type="hidden" id="failedMatches" name="failedMatches" /></li>
+<input type="hidden" id="failedMatches" name="failedMatches" />
 </form>
       </div>
+</div>
 
       <footer>
         <p>&copy; farragar.com 2012</p>
