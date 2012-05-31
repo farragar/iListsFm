@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+  <script src="./scripts.js"></script>
+  <script src="http://code.jquery.com/jquery-latest.js" ></script>
+    <meta charset="utf-8">
+    <title>iLists.fm</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="">
+    <meta name="author" content="">
+
+    <!-- Le styles -->
+    <link href="./assets/css/bootstrap.css" rel="stylesheet">
+    <style type="text/css">
+      body {
+        padding-top: 60px;
+        padding-bottom: 40px;
+      }
+    </style>
+    <link href="./assets/css/bootstrap-responsive.css" rel="stylesheet">
+
+    <link rel="shortcut icon" href="./images/favicon.ico">
+  </head>
+
+  <body>
+    <div class="navbar navbar-fixed-top">
+      <div class="navbar-inner">
+        <div class="container">
+          <a class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse">
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+          </a>
+          <a class="brand" href="http://www.farragar.com/iListsfm">iLists.fm</a>
+          <div class="nav-collapse">
+            <ul class="nav">
+              <li class="active"><a href="./index.html">Home</a></li>
+              <li><a href="./about.html">About</a></li>
+              <li><a href="mailto:laurie@farragar.com">Contact</a></li>
+              <li><a href="https://github.com/farragar/MyLovedPlaylists">Source</a></li>
+            </ul>
+          </div><!--/.nav-collapse -->
+        </div>
+      </div>
+    </div>
+
+    <div class="container">
+      <div class="hero-unit">
+        <h1>About</h1>
+        <div class="row-fluid">
+          <div class="span12">
+            <h2><a href="http://www.farragar.com/?page_id=2">About me</a></h2><p>
+            <h2>Development</h2><p>
+            I was at a gig (<a href="http://en.wikipedia.org/wiki/Pure_Reason_Revolution">Pure Reason Revolution's</a> last ever show) with a friend --- an iTunes user --- who mentioned in passing that it would be pretty cool to have a playlist of all her last.fm loved tracks. I didn't think about this much until a month or two later, during my January exam season. As any student will be aware, anything is more fun than revising when you should be revising. The idea to actually implement the system came to me when I was playing around with the Spotify API. </p>
+            <P>
+            The first released version was an incredibly slow, hacky PHP solution, but it worked. I stopped working on any side-projects for the remainder of the academic year due to work requirements of my dissertation, and decided to completely rewrite it when I finished. HTML5 was the obvious choice, since it was something I hadn't worked with before. The <a href="https://github.com/farragar/MyLovedPlaylists">Source</a> is of course available.</p>
+            <h2>Algorithm</h2>
+            <ul>
+            <li>
+            <p>
+            When a library file is dragged onto the dropover this is processed with the Javascript DOM parser to extract each individual track. Each track is then converted to an object, consisting of trackName, artistName, fileLocation. </p></li>
+            <li>
+            <p>
+            When the form is then submitted, a LastFM API call is made to extract the relevant target tracks. Each track is again written to an object; trackName, artistName. If also getting top tracks, we loop through the object array to remove any duplicates (top tracks which are also loved).</p></li>
+            <p>
+
+            <li>
+            <p>
+            Each target track and library track is then tokenized - the artist and track names are split into an array of individual whitespace delimited lower-case terms.</p></li>
+            <li>
+            <p>
+            For each target track we loop through the entire library array. Each track in the library then has a score relative to the target computed. The score is (1.5*number of matching track tokens)+(number of matching artist tokens). Track tokens are generally more unique, so these score higher. Mathematically this is 1.5*(the cardinality of the intersection of the two track name sets) plus the cardinality of the intersection of the two artist name sets.</p></li>
+            <li><p>The score is tested after each track, and the highest scoring track is recorded. This score is compared against a variable threshold, if it's too low the track fails to match and is dropped. The score-based term-matching algorithm is designed to cope with Last.fm's autocorrect feature, which handles typos in local id3 tags.</p></li>
+            <li>
+            <p>
+            A [[target,track]] array of objects is generated and passed to the return page in JSON. PHP generates the .m3u by writing each track location to file. If the computer is a mac, 'file://localhost/' is removed.</p></li>
+
+
+            <p>This can be described as an 'exhaustive weighted unigram matching algorithm'.<ul>
+              <li><p>Exhaustive - Every target-track pair is computed. This is worst case O(n^2)
+              <li><p>Weighted - The score is computed with different weights - track name token matches are worth more than artist token matches.
+              <li><p>Unigram - Only single terms (rather than combinations) are considered (bag of words).
+            </ul>
+          </ul>
+          <a name="m3uUse"><h2>m3u Usage</h2></a>
+          <p>
+            The playlists are named with a unique hash; you'll probably want to rename this. Generally, your playlist will be named the same as the file.
+            <h3>iTunes:</h3>
+            <p>Playlists in iTunes can be added through file-&gt;Add file to Library</p>
+            <h3>Spotify:</h3>
+            <p>Since we're only dealing with local files and Spotify doesn't seem to support importing playlists (looks like that's my next app project) this is a bit tricker. The best solution, unfortunately, seems to be to first import the playlist into itunes as above, then get this into Spotify with file-&gt;import Playlists-&gt;iTunes. You will then need to delete the rest of your imported itunes playlists. Alternatively, you can import into iTunes and then use one of many web-based iTunes-&gt;Spotify playlist converters. I can't vouch for their effectiveness, however.</p>
+          </div>
+        </div>
+      </div>
+    <footer>
+    <p>&copy; farragar.com 2012.</p> 
+    </footer>
+
+    </div> <!-- /container -->
+  
+    
+  </body>
+</html>
+

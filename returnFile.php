@@ -78,7 +78,7 @@
         echo '</table>';
         
         if($failedTracks){
-        echo '<h2> Failed:</h2><p />
+        echo '<h2>Failed:</h2><p />
         <table class="table table-striped table-bordered table-condensed">
           <thead>
             <th>Last.FM Track</th>
@@ -88,7 +88,8 @@
               echo '<tr><td>'.$track->trackName.'</td>'.
               '<td>'.$track->artistName.'</td></tr>';
             }
-        }
+            
+
         echo '</table>';
 
         if($perfectMatches){ 

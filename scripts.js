@@ -1,6 +1,28 @@
-﻿//TODO FOR EACH
+﻿
 var validLibFile=false;
+var tracksObjArr;
 
+//Return a minimum score multiplier based on chosen threshold strength
+function getThresholdMultiplier(){
+  switch(document.inputForm.matchThreshold.value){
+    case 'perfect':
+      return 1;
+      break;
+    case 'strong':
+      return 0.8;
+      break;
+    case 'intermediate':
+      return 0.6;
+      break;
+    case 'weak':
+      return 0.35;
+      break;
+    case 'anything':
+      return 0;
+  }
+}
+
+//Callback to perform extra API calls if necessary
 function runForm(callback){
   switch(document.inputForm.selectType.value){
     case 'loved':
@@ -15,6 +37,8 @@ function runForm(callback){
   }
 }
 
+
+//Check all form inputs are completed before enabling submit button
 function checkActivateSubmit(){
   if(validLibFile &&
       document.inputForm.username.value &&
@@ -30,43 +54,68 @@ function checkActivateSubmit(){
 
 function validTopTracks(){
   type=document.inputForm.selectType.value;
+
+  //If user also needs to input numTopTracks, check this is complete
   if(type=='top' || type=='lovedAndTop'){
     if(!document.inputForm.numOfTop.value){
       return false
     }
   }
+
+  //return true otherwise (only loved tracks)
   return true
 }
 
+
+//Last.FM API requests - parse returned xml into objects and callback
 function getLastFmLoved(callback){
   var username=document.inputForm.username.value;
-  var req=$.get("http://ws.audioscrobbler.com/2.0/?method=user.getlovedtracks&user="+username+"&api_key=d7113c54fb740ab1e97398776926fdc4&limit=400", function(data){
+  var req=$.get("http://ws.audioscrobbler.com/2.0/?method=user.getlovedtracks&user="+username+"&api_key=d7113c54fb740ab1e97398776926fdc4", function(data){
     var objs=parseAPIResponseXML(data);
     callback(objs);
   });
 }
 
-function getAndAppendTop(inputArr){
- var username=document.inputForm.username.value;
+
+//If searching for top tracks, get these also
+function getAndAppendTop(inputObjs){
+  var username=document.inputForm.username.value;
   var limit=document.inputForm.numOfTop.value;
   var req=$.get("http://ws.audioscrobbler.com/2.0/?method=user.gettoptracks&user="+username+"&api_key=d7113c54fb740ab1e97398776926fdc4&limit="+limit, function(data){
     var objs=parseAPIResponseXML(data);
-    postProcess(objs, inputArr);
+
+    //Remove any duplicate target tracks, then process
+    uniques=unique(objs, inputObjs);
+    getJSLovedTracks(unqiues)
   });
 }
 
-function postProcess(topTracks, lovedTracks){
-  var topLarger=topTracks>lovedTracks;
-  var newArr=lovedTracks;
 
-  for (var i in topTracks){
-    if(($.inArray(topTracks[i], lovedTracks))==-1){
-      newArr.push(topTracks[i]);
+function unique(topTracks, lovedTracks){
+
+  //Minimuse costly push requests By starting with largest array
+  if(lovedTracks.length>topTracks.length){
+    var newArr=lovedTracks;
+
+    //push if this track doesn't already exist
+    for (var i in topTracks){
+      if(($.inArray(topTracks[i], lovedTracks))==-1){
+        newArr.push(topTracks[i]);
+      }
     }
   }
 
-  console.log(newArr);
-  getJSLovedTracks(newArr);
+  else{
+    var newArr=topTracks;
+
+    for (var i in lovedTracks){
+      if(($.inArray(lovedTracks[i], topTracks))==-1){
+        newArr.push(lovedTracks[i]);
+      }
+    }
+  }
+
+  return newArr;
 }
 
 
@@ -76,7 +125,7 @@ function parseAPIResponseXML(doc){
   var counter=0;
   tracks=doc.getElementsByTagName("track");
 
-  for (i=0; i<tracks.length; i++){
+  for (var i in tracks){
     thisItem={};
     names=tracks[i].getElementsByTagName("name");
     thisItem.trackName=names[0].childNodes[0].nodeValue;
@@ -153,14 +202,12 @@ function parseUserLibrary(libraryXML){
     }
     //tracks can't not have a location.
     
-    trackObjArr[i]=thisTrackObj;
+    trackObjsArr[i]=thisTrackObj;
   }
-trackObjStr=JSON.stringify(trackObjArr);
 
 validLibFile=true;
 checkActivateSubmit();
 
-document.inputForm.trackObjStr.value=trackObjStr;
 document.getElementById("dropZone").setAttribute("class", "okay");
 document.getElementById("dropZone").innerHTML="...File looks legit, good to go!";
 }
@@ -223,30 +270,9 @@ function handleSelectChange(){
     }
   }
 
-function getThresholdMultiplier(){
-  switch(document.inputForm.matchThreshold.value){
-    case 'perfect':
-      return 1;
-      break;
-    case 'strong':
-      return 0.8;
-      break;
-    case 'intermediate':
-      return 0.6;
-      break;
-    case 'weak':
-      return 0.35;
-      break;
-    case 'anything':
-      return 0;
-  }
-}
-
-
 function getJSLovedTracks(lovedItems){
 
   var tracksStr=document.inputForm.trackObjStr.value;
-  var tracksObjArr=eval(tracksStr);
   var perfectMatch=[];
   var semiMatch=[]
   var noMatch=[];
@@ -281,7 +307,6 @@ function getJSLovedTracks(lovedItems){
 
     targetScore=perfectScore*getThresholdMultiplier();
     
-
     if(maxScore==perfectScore){
       perfectMatch.push([lovedItems[i],bestTrack]);
     }
