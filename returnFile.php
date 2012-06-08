@@ -77,6 +77,7 @@
         }
         echo '</table>';
         
+        
         if($failedTracks){
         echo '<h2>Failed:</h2><p />
         <table class="table table-striped table-bordered table-condensed">
@@ -89,8 +90,8 @@
               '<td>'.$track->artistName.'</td></tr>';
             }
             
-
         echo '</table>';
+        }
 
         if($perfectMatches){ 
           echo'
@@ -107,12 +108,12 @@
             
             $playlist=$playlist.$loveTrackPair[1]->fileLocation."\r\n";
           }
+          echo '</table>';
         }
         $fh=fopen("./playlists/".$uid.".m3u", 'w');
         fwrite($fh,$playlist);
         fclose($fh);
       ?>
-      </table>
       <footer>
         <p>&copy; farragar.com 2012</p>
       </footer>

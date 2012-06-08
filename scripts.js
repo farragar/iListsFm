@@ -85,8 +85,8 @@ function getAndAppendTop(inputObjs){
     var objs=parseAPIResponseXML(data);
 
     //Remove any duplicate target tracks, then process
-    uniques=unique(objs, inputObjs);
-    getJSLovedTracks(unqiues)
+    var uniques=unique(objs, inputObjs);
+    getJSLovedTracks(uniques)
   });
 }
 
@@ -118,14 +118,13 @@ function unique(topTracks, lovedTracks){
   return newArr;
 }
 
-
 function parseAPIResponseXML(doc){
   var items=new Array();
   var artist=false;
   var counter=0;
   tracks=doc.getElementsByTagName("track");
 
-  for (var i in tracks){
+  for (i=0; i<tracks.length; i++){
     thisItem={};
     names=tracks[i].getElementsByTagName("name");
     thisItem.trackName=names[0].childNodes[0].nodeValue;
@@ -202,14 +201,14 @@ function parseUserLibrary(libraryXML){
     }
     //tracks can't not have a location.
     
-    trackObjsArr[i]=thisTrackObj;
+    trackObjArr[i]=thisTrackObj;
   }
 
-validLibFile=true;
-checkActivateSubmit();
+  validLibFile=true;
+  checkActivateSubmit();
 
-document.getElementById("dropZone").setAttribute("class", "okay");
-document.getElementById("dropZone").innerHTML="...File looks legit, good to go!";
+  document.getElementById("dropZone").setAttribute("class", "okay");
+  document.getElementById("dropZone").innerHTML="...File looks legit, good to go!";
 }
 
 function handleThreshChange(){
@@ -222,7 +221,7 @@ function handleThreshChange(){
 }
 
 function handleSelectChange(){
-  if(document.inputForm.selectType.value==("loved")){
+  if(document.inputForm.selectType.value==("loved")&&document.inputForm.numOfTop){
     document.inputForm.removeChild(document.inputForm.numOfTop);
     delete document.inputForm.numOfTop;
   }
@@ -278,11 +277,10 @@ function handleSelectChange(){
 
 function getJSLovedTracks(lovedItems){
 
-  var tracksStr=document.inputForm.trackObjStr.value;
   var perfectMatch=[];
   var semiMatch=[]
   var noMatch=[];
-   
+
   for(var i in lovedItems){
     var maxScore=0;
     var bestTrack;
