@@ -245,6 +245,12 @@ function handleSelectChange(){
   }
 
   function handleFileSelect(evt) {
+    // Check for file API support.
+    if (!(window.File && window.FileReader && window.FileList && window.Blob)) {
+      document.getElementById("dropZone").innerHTML="Fail! You don't support HTML5 file APIs, get a better browser! (╯°□°）╯︵ ┻━┻";
+      return;
+    }
+
     evt.stopPropagation();
     evt.preventDefault();
 
