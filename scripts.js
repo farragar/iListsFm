@@ -1,6 +1,6 @@
 ﻿
 var validLibFile=false;
-var tracksObjArr;
+var tracksObjArr=[];
 
 //Return a minimum score multiplier based on chosen threshold strength
 function getThresholdMultiplier(){
@@ -161,7 +161,6 @@ function parseUserLibrary(libraryXML){
   lib=(lib.getElementsByTagName("dict"));
 
   numTracks=(lib.length);
-  var trackObjArr=[];
 
   //For each track
   for(i=0;i<numTracks;i++){
@@ -201,7 +200,7 @@ function parseUserLibrary(libraryXML){
     }
     //tracks can't not have a location.
     
-    trackObjArr[i]=thisTrackObj;
+    tracksObjArr[i]=thisTrackObj;
   }
 
   validLibFile=true;
@@ -320,8 +319,6 @@ function getJSLovedTracks(lovedItems){
     else{
       noMatch.push(lovedItems[i]);
     }
-    
-
   }
   document.inputForm.perfectMatches.value=JSON.stringify(perfectMatch);
   document.inputForm.semiMatches.value=JSON.stringify(semiMatch);
