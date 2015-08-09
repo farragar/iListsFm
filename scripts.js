@@ -1,6 +1,7 @@
 ﻿
 var validLibFile=false;
 var tracksObjArr=[];
+var API_KEY = "TODO";
 
 //Return a minimum score multiplier based on chosen threshold strength
 function getThresholdMultiplier(){
@@ -70,7 +71,7 @@ function validTopTracks(){
 //Last.FM API requests - parse returned xml into objects and callback
 function getLastFmLoved(callback){
   var username=document.inputForm.username.value;
-  var req=$.get("http://ws.audioscrobbler.com/2.0/?method=user.getlovedtracks&user="+username+"&api_key=d7113c54fb740ab1e97398776926fdc4", function(data){
+  var req=$.get("http://ws.audioscrobbler.com/2.0/?method=user.getlovedtracks&user="+username+"&api_key="+API_KEY, function(data){
     var objs=parseAPIResponseXML(data);
     callback(objs);
   });
@@ -81,7 +82,7 @@ function getLastFmLoved(callback){
 function getAndAppendTop(inputObjs){
   var username=document.inputForm.username.value;
   var limit=document.inputForm.numOfTop.value;
-  var req=$.get("http://ws.audioscrobbler.com/2.0/?method=user.gettoptracks&user="+username+"&api_key=d7113c54fb740ab1e97398776926fdc4&limit="+limit, function(data){
+  var req=$.get("http://ws.audioscrobbler.com/2.0/?method=user.gettoptracks&user="+username+"&api_key="+API_KEY+"&limit="+limit, function(data){
     var objs=parseAPIResponseXML(data);
 
     //Remove any duplicate target tracks, then process
